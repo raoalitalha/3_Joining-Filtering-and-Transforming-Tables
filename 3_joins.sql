@@ -1,0 +1,448 @@
+Title: Comprehensive SQL Data Analysis in Automotive Sales: Joining, Filtering, and Transforming Tables
+Description:
+This project focuses on SQL join functions and their application in analyzing sales data within the context of dealerships. SQL join functions are powerful tools used to combine data from multiple tables, enabling us to gain valuable insights and perform data analysis efficiently. In this project, we explore different types of joins, such as inner join, left outer join, right outer join, full outer join, and cross join, and their specific use cases. We also cover essential concepts like aliasing, filtering, and conditional operations using case statements, as well as useful functions like COALESCE and NULLIF. Additionally, we delve into grouping and aggregating data using the GROUP BY clause and discuss the LEAST and GREATEST functions for identifying minimum and maximum values. Throughout the project, we use practical examples and provide explanations to help you understand and apply these concepts effectively.
+
+Project Details:
+
+Introduction to join functions and their importance in combining data from multiple tables.
+Explanation of different types of joins: inner join, left outer join, right outer join, full outer join, and cross join.
+Demonstrations of join functions using salespeople and dealerships tables.
+Using aliases to improve query readability.
+Filtering join results based on specific criteria, such as state or product type.
+Utilizing case statements for conditional operations and assigning labels to data.
+Application of COALESCE function to handle null or empty values.
+Using NULLIF to convert specific values to null.
+Introduction to the LEAST and GREATEST functions for identifying minimum and maximum values.
+Grouping and aggregating data using the GROUP BY clause.
+Practical examples and step-by-step explanations throughout the project.
+
+
+
+
+-- In order to Do join functions a few things are impportaant to understand in the start.
+--A join function is used to combine data from two different tables. But there is a catch
+--You cannoot use Jon STATEMENT until and unless they are relational to each other.
+--Which means that both TABLES should have one common column defined as primary and foreign key
+--You can use JOIN even if the tables are not related to each other.However, you will need to specify the joining conditions in the WHERE clause.)
+
+
+--Types of Joins : There are 5 types of joins i.e
+				 -- INNER JOIN
+				 -- LEFT OUTER JOIN (a.k.a LEFT JOIN)
+				 -- RIGHT OUTER JOIN(a.k.a RIGHT JOIN)
+				 -- FULL OUTER JOIN
+				 -- Cross JOIN
+				
+				 
+-- INNER JOIN helps to join two tables and return the vaues which are common among them . 
+
+
+SELECT
+	*
+FROM
+	salespeople
+INNER JOIN
+	dealerships
+	ON salespeople.dealership_id = dealerships.dealership_id
+	ORDER BY 1;
+-- The output will result in all the matching columns from Table "salespeople" and Table "dealerships" being displayed. Based on the common column i.e "dealership_id"
+-- One thing is important to note. As we mentioned TABLE "salespeople" first in the FROM clause. So all of its columns will be displayed first in the output. 
+-- Always remember, in INNER JOIN only those values will be output which is matching on both tables others will be redundant.
+-- Let's do this INNER JOIN example by putting the"dealership "" table in the FROM clause
+SELECT
+	*
+FROM
+	 dealerships
+INNER JOIN
+	 salespeople
+	ON dealerships.dealership_id = salespeople.dealership_id
+	ORDER BY 1;
+-- If you just wanted to display the output for your one desired table or specific table then you have to make the following changes in the SELECT command
+-- name the table put a full stop and steric. e.g. "dealership.*"
+SELECT
+	dealerships.*
+FROM
+	 dealerships
+INNER JOIN
+	 salespeople
+	ON dealerships.dealership_id = salespeople.dealership_id
+	ORDER BY 1;
+-- One common practice to make queries easily readable and quick running, use an alias. e.g table from the above query
+SELECT
+	d.*
+FROM
+	 dealerships d
+INNER JOIN
+	 salespeople s
+	ON d.dealership_id = s.dealership_id
+	ORDER BY 1;
+	
+-- As now we have created a new dataset you may call it super set after running the JOIN query. We can now run multi-query in that new data set as well. 
+--For example, we wanted to filter the results for only state "CA"
+SELECT
+	 *
+FROM
+	 salespeople
+INNER JOIN
+ 	dealerships
+ 	ON salespeople.dealership_id = dealerships.dealership_id
+WHERE
+ 	dealerships.state = 'CA'
+ORDER BY
+ 1;
+	
+-- 2.LEFT OUTER JOIN (a.k.a LEFT JOIN)
+
+--In a LEFT OUTER JOIN (or LEFT JOIN), all the columns from the LEFT table which is mentioned first will be displayed 
+--along with matching entries from the RIGHT table towards it. If there are no matching entries in the RIGHT table,
+--then NULL values will be displayed for those entries.
+
+
+--Using LEFT JOIN we will join customers tables and the emails table
+SELECT
+ 	*
+FROM
+customers c
+LEFT JOIN emails e ON c.customer_id = e.customer_id
+ORDER BY c.customer_id 
+--The result will return all the entries from TABLE "customers" but only those entries from TABLE "emails" whicg matches with first table. Rest will be shown as "null"
+
+
+We can filter out all the entrie to whom the email was not set by using following Query
+SELECT *
+FROM
+ customers c
+LEFT OUTER JOIN
+ emails e ON c.customer_id = e.customer_id
+WHERE
+ e.customer_id IS NULL
+ORDER BY
+ c.customer_id
+
+
+
+-- 3.RIGHT OUTER JOIN (a.k.a LEFT JOIN)
+
+--In a Right OUTER JOIN (or RIGHT JOIN), all the columns from the RIGHT table which is mentioned first will be displayed 
+--along with matching entries from the LEFT table towards it. If there are no matching entries in the LEFT table,
+--then NULL values will be displayed for those entries.
+
+SELECT
+ 	*
+FROM
+customers c
+RIGHT JOIN emails e ON c.customer_id = e.customer_id
+ORDER BY c.customer_id 
+--The result will return all the entries from TABLE "emails" but only those entries from TABLE "customers" which matches with first table. Rest will be shown as "null"
+
+
+-- 4.FULL OUTER JOIN (a.k.a LEFT JOIN)
+-- For rows where the join predicate is met, the two rows are combined in a
+-- group. For rows where they are not met, the row has NULL filled in. 
+-- The full outer join is invoked by using the FULL OUTER JOIN clause, followed by a join predicate. 
+
+SELECT
+ 	*
+FROM
+customers c
+FULL OUTER JOIN emails e ON c.customer_id = e.customer_id
+ORDER BY c.customer_id 
+
+-- 5.Cross JOIN
+--The cross join is also referred to as the Cartesian product (e.g The Cartesian product A × B would be:A × B = {(1, 3), (1, 4), (2, 3), (2, 4)})
+-- it returns every possible combination of rows from the "left" table and the "right" table.
+-- It use a CROSS JOIN clause
+
+SELECT
+*
+FROM
+ products  --(this table has 13 rows)
+CROSS JOIN
+ products_2014 --(this table has 10 rows)
+ ORDER BY 1; --(13*10 =130 the output should be 130 rows)
+-- Have to be very careful while using this JOIN it will create a lot of multiplication that can cause the database to crash down
+
+
+
+
+-- Using Joins to Analyze a Sales Dealership
+-- The head of sales at your company would like a list
+-- of all customers who bought a car. We need to create a query that will return all customer IDs, first names, last
+-- names, and valid phone numbers of customers who purchased a car.
+Note
+
+--1. List of customers who bought a car
+--2 return query contain customer_id, first_name, last_name, phone number
+
+SELECT
+	c.customer_id, c.first_name, c.last_name, c.phone
+FROM
+customers c
+INNER JOIN
+	sales s ON  c.customer_id = s.customer_id
+INNER JOIN
+	products p ON s.product_id = p.product_id
+WHERE 
+	p.product_type = 'automobile'
+AND 
+	c.phone IS NOT NULL;
+
+
+---------------------------------------------
+
+salespeople working in California and get the results the same as in Figure 2.5, we could have written the query using
+the following alternative:
+
+salespeople working in California
+
+
+Select s.salesperson_id, s.first_name
+from salespeople s 
+inner join (SELECT d.dealership_id, d.state
+FROM dealerships d
+where d.state = 'CA') as d
+ON s.dealership_id = d.dealership_id
+
+
+Select *
+from salespeople s 
+inner join (SELECT *
+FROM dealerships d
+where d.state = 'CA') as d
+ON s.dealership_id = d.dealership_id
+/* we use case statements just like" if and else "statements in many programming languages. we put the condition in the CASE statement 
+by using "WHEN" and what should be the output in the "THEN" statement to finish the statement we use  "END".
+
+We use "ELSE" as well in the "CASE" statement. The syntax will be : 
+CASE WHEN salary > 5000 THEN 'Low', WHEN salary = 6000 'Medium'
+ELSE 'High' END
+
+When we apply CASE statement the output will be in a new column
+
+Also, when you do not mention "ELSE" in the "CASE" statement all other values will be "NULL" after fulfilling the critaria of the "WHEN" statement
+*/
+*/
+
+
+/* In this example we are using the "SALES TABLE" we apply one "WHEN" condition. which is "WHEN column 'sales_amoun > 500' THEN output 
+should be 'Good' after that we put END and finish the statement and put the name of the new column
+In the output, we will see all the values will be 'NULL' except where sales_amount >500 */
+SELECT
+	customer_id, product_id, sales_amount, CASE WHEN sales_amount > 500 THEN 'Good' END AS RATING
+FROM
+	sales
+
+-- NOW we will use 2 WHEN statement in the CASE statement
+
+SELECT
+	customer_id, product_id, sales_amount, CASE WHEN sales_amount = 399.9 THEN 'Good'
+										    WHEN sales_amount > 399.9 THEN 'VERY GOOD' END AS RATING
+FROM
+	sales (-- if these 2 conditions meet the out pit will be there, otherwise, there will be NUL in the rest of the rows )
+
+-- -- NOW we will use 2 in WHEN statement  and  1 in ELSE in the CASE statement
+SELECT
+	customer_id, product_id, sales_amount, CASE WHEN sales_amount = 399.9 THEN 'Good'
+										    WHEN sales_amount > 399.9 THEN 'VERY GOOD'  ELSE 'out of order' END AS RATING
+FROM
+	sales
+ORDER BY 3
+		
+		
+-- We can also use "AND" as well as "OR" while applying the case statement
+--USING AND (both conditions should be met for the out put)
+SELECT
+	customer_id, product_id, sales_amount, CASE WHEN sales_amount > 399.9  AND channel = 'dealership' THEN 'Good'
+										      ELSE 'out of order' END AS RATING 
+FROM
+	sales
+-- USING OR (any one of the condition can meet and you get output)
+SELECT
+	customer_id, product_id, sales_amount, CASE WHEN sales_amount > 399.9  OR channel = 'dealership' THEN 'Good'
+										      ELSE 'out of order' END AS RATING 
+	FROM
+	sales
+
+--We can use case function to apply aggregate functions. 
+SELECT
+	SUM(CASE WHEN sales_amount > 200 THEN 1  ELSE 0 END ) AS RATING		
+FROM
+	sales		
+		
+		
+SELECT
+ SUM(CASE WHEN state IS NULL OR state IN ('')
+ THEN 1
+ ELSE 0 END)
+FROM customers
+		
+/*Add a column that labels a user as being an Elite Customer type if they live in postal code 33111, or
+as a Premium Customer type if they live in postal code 33124. Otherwise, it will mark the customer as a Standard
+Customer type. This column will be called customer_type. We can create this table by using a CASE WHEN
+statement as follows:*/
+
+SELECT *,
+CASE WHEN postal_code = '33124' THEN 'Premium Customer' ELSE 'Standard Customer' END AS customer_type
+FROM customers
+WHERE (CASE WHEN postal_code = '33124' THEN 'Premium Customer' ELSE 'Standard Customer' END 
+) = 'Premium Customer';
+
+SELECT * FROM (
+SELECT *,
+CASE WHEN postal_code ='33124' then 'premium customer' ELSE 'standard customer' END as customer_type
+FROM customers) AS sub
+WHERE customer_type = 'Premium Customer';
+		
+/*  A list of all customers mapped to regions. For customers from the states of
+MA, NH, VT, ME, CT, or RI, he would like them labeled as New England. For customers from the states of GA, FL,
+MS, AL, LA, KY, VA, NC, SC, TN, VI, WV, or AR, he would like the customers labeled as Southeast. Customers
+from any other state should be labeled as Other  */
+
+SELECT customer_id, 
+CASE WHEN state IN ('MA', 'NH', 'VT',' ME', 'CT', 'R') THEN 'New England' WHEN STATE IN ('GA', 'FL',
+'MS', 'AL', 'LA', 'KY', 'VA', 'NC', 'SC', 'TN', 'VI', 'WV','AR') THEN 'Southeast' ELSE 'others' END AS new_state_col
+FROM customers
+WHERE  state IN ('MA', 'NC') 
+
+----------------------------------------------------------------------------------------------------------------------------		
+		
+/* Using The "COALESCE" function 
+   This allow to replace "ANY NULL OR EMPTY VALUE IN A COLUMN with a defined value "
+		*/
+
+--In the following expamle the "COALESCE" function wil lreplace all the empty and null values in the "Phone  column with 'No Number' "
+--and  output the in new column name "new_phone_col"
+SELECT
+ first_name, last_name, phone, 
+COALESCE(phone, 'No NUMBER') as new_phone_col
+FROM
+ customers
+ORDER BY
+ 1;
+		
+		
+-- If phone is not null, the value of new_phone_col will be the value of phone.
+-- If phone is null but title is not null, the value of new_phone_col will be the value of title.		
+SELECT first_name, last_name, phone, title,
+COALESCE(phone, title, 'No NUMBER') AS new_phone_col
+FROM customers
+ORDER BY 1;
+
+		
+-- We can also use "NULLIF" if you want to make any record in the column "A NULL value". All the titles wit "Dr" will be turned into "NULL" in following
+SELECT first_name, last_name, phone, title, NULLIF (title, 'Dr') as title
+FROM customers
+
+-- We use LEAST and Greatest Function to get the  immediate least and greatest values
+The LEAST/GREATEST Function
+
+SELECT product_id, LEAST (base_msrp)
+FROM products
+ORDER BY 2 (-- This query will list all the product_id with the least amount first in column base_msrp)
+
+SELECT product_id, LEAST (400.00 ,base_msrp)
+FROM products
+WHERE product_type = 'scooter' 
+ORDER BY 2 (--This quetry will provide the product_id whose base_msrp is below 400.00 only)
+
+
+SELECT product_id, GREATEST (400.00 ,base_msrp)
+FROM products
+WHERE product_type = 'scooter'
+ORDER BY 2 (--This quetry will provide the product_id whose base_msrp is 400.00 and above only)
+
+
+
+SELECT product_id, GREATEST (200.00)
+FROM products
+ORDER BY 2
+
+
+--The Casting Function used to change the data type of a column and represented by (::)
+SELECT product_id, model :: varchar(255), year :: text
+from products
+
+
+------------------------------------------------
+--To count all the number of state and group them 
+select
+	state, count(*) AS total
+from
+customers
+GROUP BY  state
+
+--This statement will group state on the basis of gender and count on the bases of gender. Ast there are two gender, so one gender will
+-- be grouped with state and other gender again group with teh same stae. and the total count is divided on the bases of teh gender
+SELECT
+ gender, state, COUNT(*)
+FROM
+ customers
+GROUP BY
+ state, gender
+ORDER BY
+ state, gender
+ 
+	
+--We can also APPLY condition  using WHERE clause but YOU CANNOT USE WHERE CLAUSE on AGGREGATE FUNCTION. To do so you need HAVING clause	
+ SELECT
+ gender, state, COUNT(*)
+FROM
+ customers
+ where gender = 'F'
+GROUP BY
+ state, gender, phone
+
+ 
+-- USING HAVING CLAUSE ON AGGREGATE FUNCTION	
+ SELECT
+ gender, state, COUNT(*)
+FROM
+ customers
+where gender = 'F'
+GROUP BY
+ state, gender, phone
+HAVING 
+	count(*)>60
+
+/*wants to know the customer count for the states that have at least 1000 customers who have purchased any product from
+ZoomZoom. Help the manager extract the data
+select  state, count(*) */
+from
+customers
+group by state
+having count(*) >= 1000
+order by 1
+	
+/*Analyze and calculate the cost of products using aggregate functions and the GROUP BY
+clause. The marketing manager wants to know the minimum, maximum, average, and standard deviation of the price
+for each product type that ZoomZoom sells for a marketing campaign. Perform the following steps to complete this
+exercise:*/
+SELECT  product_type, MIN(base_msrp), MAX (base_msrp), AVG (base_msrp), STDDEV (base_msrp)
+FROM
+products
+GROUP BY
+product_type
+	
+
+--The GROUPING SETS clause is a useful feature in SQL. It allows you to specify multiple grouping sets for aggregations without using the UNION ALL clause.
+-- It provides a convenient way to obtain aggregated values for different levels of grouping in a single query.
+SELECT
+ state,
+ gender,
+ COUNT(*)
+FROM
+ customers
+GROUP BY GROUPING SETS (
+ (state),
+ (gender),
+ (state, gender)
+)
+ORDER BY 1, 2
+
+
+
+
+
+
+
+
